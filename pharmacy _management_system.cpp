@@ -3,37 +3,61 @@
 #include <string>
 #include <cctype> // for tolower()
 #include <algorithm>
+#include <iterator>
+#include <set>
+#include <sstream>
 using namespace std;  
+void upload_prescription();
 int passwordof_staff=232425;
 string expireddate_checking(){
     
 };
-int customer_service(){
-    cout<<"Thank you for choosing Aurora virtual pharmacy .our customer choose what kind of service you need?";
-    cout<<"  0-";
-    ifstream file("pharmacy.txt");  // Try to open the file
-    string line,medicine;
+int customer_service() {
+    cout << "Thank you for choosing Aurora Virtual Pharmacy. Our customer, please select the generic name you want: \n";
 
-    // Debug: Check if file was found
+    string prescription;
+    ofstream prescriptionn;  // Output file where the prescription text is saved
+    ifstream file("pharmacy.txt");  // Pharmacy data file
+    string line, genericName;
+
+    // Check if pharmacy.txt exists
     if (!file) {
-        cout << "❌ File not found! Make sure Amoxicillin.txt is in the correct folder." << endl;
+        cout << "❌ File not found! Make sure pharmacy.txt is in the correct folder." << endl;
         return 1;
     }
 
-    cout << "✅ File opened successfully.\n\n";
-   cout<<"enter the medicie you want \n";
-   getline(cin,medicine);
-    // Read and print lines
-    cout<<"Medicine name      "<<"              Pricr$    "<<" Quantity    "<<"Expiry Date  "<<"Country of Origin    "<<"Generic Name   \n";
-    while (getline(file, line)) {  
-      if (line.find(medicine) != std::string::npos) {  
-          std::cout << line << std::endl;  
-      }  
-  }  
+    // Ask the customer to enter the prescription and output it to the file
+    cout << "Dear customer, enter your prescription using the following link, extract the text, and copy-paste it here:\n";
+    cout << "This link --> https://chatgpt.com/\n";
+    cout << "Enter your prescription text: ";
+    getline(cin, prescription);
 
-    file.close();  // Close the file
-    void upload_prescription();
+    // Save the prescription to the file
+    prescriptionn.open("prescription.txt");
+    prescriptionn << prescription;
+    prescriptionn.close();
+
+    // Extract the generic name from the prescription
+    // For simplicity, assume the first word in the prescription is the generic name
+    stringstream ss(prescription);
+    ss >> genericName;
+
+    cout << "Searching for medicines with generic name: " << genericName << endl;
+
+    // Print header for medicine details
+    cout << "Medicine Name      | Price ($) | Quantity | Expiry Date | Country of Origin | Generic Name\n";
+    cout << "----------------------------------------------------------------------------------------------\n";
+
+    // Read pharmacy.txt and search for the generic name
+    file.close();
+    int finish;
+do {
+    cout << "Please enter 1 to finish\n";
+    cin >> finish;
+} while (finish != 1);
+    return 0;
 }
+
 string new_medicine(){
 
    string whole_seller;
