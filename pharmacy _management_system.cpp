@@ -7,13 +7,17 @@
 #include <algorithm>  
 using namespace std;
 
+// Constants
+const string PHARMACY_FILE = "pharmacy.txt";
+const string PRESCRIPTION_FILE = "prescription.txt";
+const int STAFF_PASSWORD = 232425;
+
 // Function declarations
 int update_stock();
 int search_medicine();
 int daily_report();
 int view_history();
 int customer_service();
-const int passwordof_staff = 232425;
 
 int customer_service() {
     cout << " Thank you for choosing 5S Virtual Pharmacy.\n";
@@ -26,7 +30,11 @@ int customer_service() {
     cout << "Enter hospital name: ";
     getline(cin, hospital_name);
     cout << "Enter age: ";
-    cin >> age;
+    while (!(cin >> age) || age <= 0) {
+        cout << "Invalid input. Please enter a valid age: ";
+        cin.clear(); // Clear the error flag
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
+    }
     cin.ignore(); // Clear leftover newline
 
     string medicine, genericSearch;
@@ -35,15 +43,15 @@ int customer_service() {
     cout << "Enter the generic name you want to search: ";
     getline(cin, genericSearch);
 
-    ifstream file("pharmacy.txt");
+    ifstream file(PHARMACY_FILE);
     if (!file) {
-        cout << " File not found! Make sure pharmacy.txt is in the correct folder.\n";
+        cout << " File not found! Make sure " << PHARMACY_FILE << " is in the correct folder.\n";
         return 1;
     }
 
-    ofstream fout("prescription.txt", ios::app);
+    ofstream fout(PRESCRIPTION_FILE, ios::app);
     if (!fout) {
-        cout << " Failed to open prescription.txt\n";
+        cout << " Failed to open " << PRESCRIPTION_FILE << "\n";
         return 1;
     }
 
@@ -100,20 +108,22 @@ int customer_service() {
 
     char buy;
     string location;
-buy_prompt:
-    cout << "Do you want to buy it? (Y/n): ";
-    cin >> buy;
-    cin.ignore();
+    while (true) {
+        cout << "Do you want to buy it? (Y/n): ";
+        cin >> buy;
+        cin.ignore();
 
-    if (buy == 'Y' || buy == 'y') {
-        cout << "Enter your address with your phone number, please: ";
-        getline(cin, location);
-        cout << "Your medicine will arrive soon. Thank you for choosing 5S Pharmacy.\n";
-    } else if (buy == 'n' || buy == 'N') {
-        cout << "Order cancelled. Have a good day!\n";
-    } else {
-        cout << "Invalid input.\n";
-        goto buy_prompt;
+        if (buy == 'Y' || buy == 'y') {
+            cout << "Enter your address with your phone number, please: ";
+            getline(cin, location);
+            cout << "Your medicine will arrive soon. Thank you for choosing 5S Pharmacy.\n";
+            break;
+        } else if (buy == 'n' || buy == 'N') {
+            cout << "Order cancelled. Have a good day!\n";
+            break;
+        } else {
+            cout << "Invalid input. Please enter 'Y' or 'n'.\n";
+        }
     }
 
     return 0;
@@ -130,9 +140,9 @@ int update_stock() {
     cin.ignore();
 
     if (choice == 1) {
-        ifstream file("pharmacy.txt");
+        ifstream file(PHARMACY_FILE);
         if (!file) {
-            cerr << " Could not open pharmacy.txt\n";
+            cerr << " Could not open " << PHARMACY_FILE << "\n";
             return 1;
         }
 
@@ -187,9 +197,9 @@ int update_stock() {
         cout << "Enter Generic Name: ";
         getline(cin, generic);
 
-        ofstream fout("pharmacy.txt", ios::app);
+        ofstream fout(PHARMACY_FILE, ios::app);
         if (!fout) {
-            cerr << " Error opening pharmacy.txt for writing!\n";
+            cerr << " Error opening " << PHARMACY_FILE << " for writing!\n";
             return 1;
         }
 
@@ -210,7 +220,7 @@ int search_medicine() {
     cout << "Enter medicine generic name you want to search: ";
     getline(cin, medicine);
 
-    ifstream file("pharmacy.txt");
+    ifstream file(PHARMACY_FILE);
     if (!file) {
         cout << " File not found!\n";
         return 1;
@@ -264,9 +274,9 @@ int search_medicine() {
 }
 
 int daily_report() {
-    ifstream file("prescription.txt");
+    ifstream file(PRESCRIPTION_FILE);
     if (!file.is_open()) {
-        cerr << "Error: Could not open prescription.txt\n";
+        cerr << "Error: Could not open " << PRESCRIPTION_FILE << "\n";
         return 1;
     }
 
@@ -313,9 +323,9 @@ int daily_report() {
 }
 
 int view_history() {
-    ifstream file("prescription.txt");
+    ifstream file(PRESCRIPTION_FILE);
     if (!file.is_open()) {
-        cerr << "Error: Could not open prescription.txt\n";
+        cerr << "Error: Could not open " << PRESCRIPTION_FILE << "\n";
         return 1;
     }
 
@@ -342,7 +352,7 @@ int view_history() {
         getline(ss, country, ',');
         getline(ss, generic, ',');
 
-        // Case-insensitive match (optional: remove if not needed)
+        // Case-insensitive match
         string name_lower = name, search_lower = search_name;
         transform(name_lower.begin(), name_lower.end(), name_lower.begin(), ::tolower);
         transform(search_lower.begin(), search_lower.end(), search_lower.begin(), ::tolower);
@@ -367,7 +377,6 @@ int view_history() {
     return 0;
 }
 
-
 int main() {
     cout << "     AURORA VIRTUAL PHARMACY  \n";
     cout << "             WELCOME          \n";
@@ -386,7 +395,7 @@ int main() {
             cin >> entered_password;
             cin.ignore();
 
-            if (entered_password == passwordof_staff) {
+            if (entered_password == STAFF_PASSWORD) {
                 access_granted = true;
                 break;
             } else {
@@ -412,18 +421,13 @@ int main() {
             cin >> choice;
             cin.ignore();
 
-            if (choice == 1) {
-                update_stock();
-            } else if (choice == 2) {
-                search_medicine();
-            } else if (choice == 3) {
-                daily_report();
-            } else if (choice == 4) {
-                view_history();
-            } else if (choice == 5) {
-                cout << "Returning to Main Menu.\n";
-            } else {
-                cout << "Invalid input!\n";
+            switch (choice) {
+                case 1: update_stock(); break;
+                case 2: search_medicine(); break;
+                case 3: daily_report(); break;
+                case 4: view_history(); break;
+                case 5: cout << "Returning to Main Menu.\n"; break;
+                default: cout << "Invalid input!\n"; break;
             }
         }
     } else if (role == "customer") {
@@ -434,4 +438,3 @@ int main() {
 
     return 0;
 }
-
